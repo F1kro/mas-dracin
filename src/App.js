@@ -10,7 +10,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-b from-red-50 to-white">
+      <div className="flex flex-col min-h-screen text-white bg-gradient-to-b from-gray-900 via-gray-900 to-black">
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -20,14 +20,14 @@ function App() {
             element={
               <ErrorBoundary
                 fallback={
-                  <div className="min-h-screen flex items-center justify-center bg-gray-900">
+                  <div className="flex items-center justify-center min-h-screen bg-gray-900">
                     <div className="text-center">
-                      <h1 className="text-2xl text-white mb-4">
+                      <h1 className="mb-4 text-2xl text-white">
                         Terjadi Kesalahan
                       </h1>
                       <button
                         onClick={() => window.location.reload()}
-                        className="bg-red-600 text-white px-6 py-3 rounded-lg"
+                        className="px-6 py-3 text-white bg-red-600 rounded-lg"
                       >
                         Refresh Halaman
                       </button>
@@ -43,11 +43,11 @@ function App() {
         </Routes>
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-white py-12 mt-12">
-          <div className="container mx-auto px-4">
+        <footer className="py-12 mt-0 text-white bg-gray-900">
+          <div className="container px-4 mx-auto">
             <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4">🎬 Mas-Dracin(Drama-China)</h2>
-              <p className="text-gray-400 max-w-2xl mx-auto mb-8">
+              <h2 className="mb-4 text-3xl font-bold">🎬 Mas-Dracin(Drama-China)</h2>
+              <p className="max-w-2xl mx-auto mb-8 text-gray-400">
                 Platform streaming drama China dengan subtitle Indonesia. Tonton
                 gratis drama terbaru dan terpopuler.
               </p>
@@ -55,36 +55,36 @@ function App() {
               <div className="flex flex-wrap justify-center gap-6 mb-8">
                 <a
                   href="/"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 transition-colors hover:text-white"
                 >
                   Beranda
                 </a>
                 <a
                   href="/search/romance"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 transition-colors hover:text-white"
                 >
                   Romance
                 </a>
                 <a
                   href="/search/historical"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 transition-colors hover:text-white"
                 >
                   Historical
                 </a>
                 <a
                   href="/search/fantasy"
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className="text-gray-300 transition-colors hover:text-white"
                 >
                   Fantasy
                 </a>
               </div>
 
-              <div className="border-t border-gray-800 pt-8">
-                <p className="text-gray-500 text-sm">
+              <div className="pt-8 border-t border-gray-800">
+                <p className="text-sm text-gray-500">
                   © 2025 Mas-Dracin. Website ini dibuat oleh Masfiq menggunakan API publik untuk
                   tujuan Demonstrasi dan Testing Api Free yang berasal dari GC FB
                 </p>
-                <p className="text-gray-600 text-xs mt-2">
+                <p className="mt-2 text-xs text-gray-600">
                   Disclaimer: Konten asli milik pemegang hak cipta
                   masing-masing.
                 </p>

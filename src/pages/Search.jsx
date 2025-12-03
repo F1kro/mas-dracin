@@ -85,14 +85,14 @@ const Search = () => {
   }, [query, searchDramas, searchNewDramas]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen text-white bg-gradient-to-b from-gray-900 to-black">
+      <div className="container px-4 py-8 mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 text-3xl font-bold text-gray-100">
             Hasil Pencarian: <span className="text-red-600">"{decodeURIComponent(query)}"</span>
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-400">
             {results.length > 0 
               ? `Ditemukan ${results.length} drama` 
               : loading ? 'Mencari drama...' : 'Tidak ada hasil'}
@@ -101,10 +101,10 @@ const Search = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <p className="text-yellow-800">{error}</p>
+          <div className="p-4 mb-6 border border-yellow-700 rounded-lg bg-yellow-900/30">
+            <p className="text-yellow-300">{error}</p>
             {error.includes('contoh') && (
-              <p className="text-yellow-600 text-sm mt-1">
+              <p className="mt-1 text-sm text-yellow-200">
                 Menampilkan contoh drama terkait
               </p>
             )}
@@ -113,17 +113,17 @@ const Search = () => {
 
         {/* Loading */}
         {loading && (
-          <div className="flex justify-center items-center py-16">
+          <div className="flex items-center justify-center py-16">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Mencari drama...</p>
+              <div className="w-16 h-16 mx-auto mb-4 border-t-4 border-b-4 border-red-600 rounded-full animate-spin"></div>
+              <p className="text-gray-400">Mencari drama...</p>
             </div>
           </div>
         )}
 
         {/* Results */}
         {!loading && results.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {results.map((drama, index) => {
               // Normalisasi data drama
               const normalizedDrama = {
@@ -144,22 +144,22 @@ const Search = () => {
 
         {/* No Results */}
         {!loading && results.length === 0 && !error && (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+          <div className="py-16 text-center">
+            <div className="mb-4 text-6xl">🔍</div>
+            <h3 className="mb-2 text-2xl font-bold text-gray-100">
               Tidak ditemukan hasil
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6 text-gray-400">
               Coba gunakan kata kunci yang berbeda
             </p>
             <div className="max-w-md mx-auto">
-              <h4 className="font-bold mb-3">Saran pencarian:</h4>
-              <div className="flex flex-wrap gap-2 justify-center">
+              <h4 className="mb-3 font-bold">Saran pencarian:</h4>
+              <div className="flex flex-wrap justify-center gap-2">
                 {['Romance', 'CEO', 'Historical', 'Fantasy', 'Modern', 'Cinta'].map((keyword) => (
                   <a
                     key={keyword}
                     href={`/search/${keyword}`}
-                    className="bg-red-100 text-red-700 px-4 py-2 rounded-full hover:bg-red-200 transition-colors"
+                    className="px-4 py-2 text-red-700 transition-colors bg-red-100 rounded-full hover:bg-red-200"
                   >
                     {keyword}
                   </a>
@@ -172,8 +172,8 @@ const Search = () => {
         {/* Try Fallback Dramas */}
         {!loading && results.length === 0 && error && (
           <div className="mt-12">
-            <h3 className="text-2xl font-bold mb-6">Drama Populer Lainnya</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <h3 className="mb-6 text-2xl font-bold">Drama Populer Lainnya</h3>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
               {fallbackDramas.slice(0, 12).map((drama, index) => (
                 <DramaCard key={index} drama={drama} />
               ))}

@@ -42,86 +42,92 @@ const Watch = () => {
   const [duration, setDuration] = useState(0);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [showAllChapters, setShowAllChapters] = useState(false);
 
-  // 🔧 PINDHKAN fetchVideoData KE ATAS useEffect
+  // ================= DATA FETCHING =================
+
   const fetchVideoData = useCallback(async () => {
     setLoading(true);
     setError(null);
     setIsVideoReady(false);
-    
+
     try {
       console.log(`🎬 Loading drama ${bookId}, episode ${currentChapter + 1}`);
-      
+
       // Fetch video data
       const watchData = await dramaAPI.getWatch(bookId, currentChapter);
-      
-      console.log('Video data check:', {
+
+      console.log("Video data check:", {
         success: watchData.success,
         isVideoValid: watchData.isVideoValid,
         hasUrl: !!watchData.url,
-        error: watchData.error
+        error: watchData.error,
       });
-      
+
       // Cek jika video valid
       if (!watchData.success || !watchData.isVideoValid) {
-        let errorMessage = 'Video tidak tersedia';
-        let errorType = 'VIDEO_UNAVAILABLE';
-        
-        if (watchData.error === 'NOT_FOUND') {
-          errorMessage = 'Episode ini tidak ditemukan di server';
-          errorType = 'NOT_FOUND';
-        } else if (watchData.error === 'NETWORK_ERROR') {
-          errorMessage = 'Gagal terhubung ke server video. Periksa koneksi internet Anda.';
-          errorType = 'NETWORK_ERROR';
-        } else if (watchData.error === 'CORS_ERROR') {
-          errorMessage = 'Terjadi masalah teknis dengan server video.';
-          errorType = 'CORS_ERROR';
-        } else if (watchData.error === 'TIMEOUT') {
-          errorMessage = 'Server video tidak merespons. Silakan coba lagi nanti.';
-          errorType = 'TIMEOUT';
-        } else if (watchData.error === 'NO_VIDEO_DATA') {
-          errorMessage = 'Data video tidak tersedia untuk episode ini.';
-          errorType = 'NO_VIDEO_DATA';
+        let errorMessage = "Video tidak tersedia";
+        let errorType = "VIDEO_UNAVAILABLE";
+
+        if (watchData.error === "NOT_FOUND") {
+          errorMessage = "Episode ini tidak ditemukan di server";
+          errorType = "NOT_FOUND";
+        } else if (watchData.error === "NETWORK_ERROR") {
+          errorMessage =
+            "Gagal terhubung ke server video. Periksa koneksi internet Anda.";
+          errorType = "NETWORK_ERROR";
+        } else if (watchData.error === "CORS_ERROR") {
+          errorMessage = "Terjadi masalah teknis dengan server video.";
+          errorType = "CORS_ERROR";
+        } else if (watchData.error === "TIMEOUT") {
+          errorMessage =
+            "Server video tidak merespons. Silakan coba lagi nanti.";
+          errorType = "TIMEOUT";
+        } else if (watchData.error === "NO_VIDEO_DATA") {
+          errorMessage = "Data video tidak tersedia untuk episode ini.";
+          errorType = "NO_VIDEO_DATA";
         }
-        
+
         throw new Error(`${errorType}: ${errorMessage}`);
       }
-      
+
       // Fetch chapters data
       const chaptersResponse = await dramaAPI.getChapters(bookId);
       const validChapters = chaptersResponse.list || [];
       const totalChaptersCount = chaptersResponse.total || validChapters.length;
-      
+
       // Validate chapter index
       if (currentChapter >= totalChaptersCount && totalChaptersCount > 0) {
         setCurrentChapter(0);
         navigate(`/watch/${bookId}/0`);
         return;
       }
-      
+
       // Fetch drama info
       const fetchDramaInfo = async () => {
         try {
           const sources = [
             () => dramaAPI.search(bookId, 1),
             () => dramaAPI.getForYou(1),
-            () => dramaAPI.getNewDramas(1, 50)
+            () => dramaAPI.getNewDramas(1, 50),
           ];
-          
+
           for (let i = 0; i < sources.length; i++) {
             try {
               const results = await sources[i]();
-              const foundDrama = results.find(d => d.bookId === bookId);
-              
+              const foundDrama = results.find((d) => d.bookId === bookId);
+
               if (foundDrama) {
                 return {
                   title: foundDrama.title || foundDrama.bookName,
-                  description: foundDrama.description || foundDrama.introduction,
+                  description:
+                    foundDrama.description || foundDrama.introduction,
                   cover: foundDrama.cover,
-                  genre: foundDrama.genre || (foundDrama.tags && foundDrama.tags[0]),
+                  genre:
+                    foundDrama.genre || (foundDrama.tags && foundDrama.tags[0]),
                   rating: foundDrama.rating,
                   chapterCount: foundDrama.chapterCount,
-                  playCount: foundDrama.playCount
+                  playCount: foundDrama.playCount,
                 };
               }
             } catch (sourceError) {
@@ -130,59 +136,57 @@ const Watch = () => {
           }
           return null;
         } catch (error) {
-          console.error('Error fetching drama info:', error);
+          console.error("Error fetching drama info:", error);
           return null;
         }
       };
-      
+
       const dramaInfoData = await fetchDramaInfo();
-      
+
       setVideoData({
         ...watchData,
         chapterIndex: currentChapter,
-        totalChapters: totalChaptersCount
+        totalChapters: totalChaptersCount,
       });
-      
+
       setChapters(validChapters);
       setTotalChapters(totalChaptersCount);
       setDramaInfo(dramaInfoData);
       setIsVideoReady(true);
-      
-      console.log('✅ Video ready to play');
-      
+
+      console.log("✅ Video ready to play");
+
       // Scroll to top
       window.scrollTo(0, 0);
-      
     } catch (error) {
-      console.error('❌ Error in fetchVideoData:', error.message);
-      
-      const errorMessage = error.message.split(': ')[1] || error.message;
+      console.error("❌ Error in fetchVideoData:", error.message);
+
+      const errorMessage = error.message.split(": ")[1] || error.message;
       setError(errorMessage);
-      
+
       // Set data kosong - NO DEMO VIDEO
       setVideoData({
         url: null,
         title: `Episode ${currentChapter + 1}`,
-        description: 'Video tidak tersedia',
+        description: "Video tidak tersedia",
         isVideoValid: false,
-        error: true
+        error: true,
       });
-      
+
       setChapters([]);
       setTotalChapters(0);
       setIsVideoReady(false);
-      
     } finally {
       setLoading(false);
     }
   }, [bookId, currentChapter, navigate]);
 
-  // 🔧 SEKARANG BARU useEffect
   useEffect(() => {
     fetchVideoData();
   }, [fetchVideoData]);
 
-  // Time tracking
+  // ================= TIME TRACKING =================
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !isVideoReady) return;
@@ -201,9 +205,12 @@ const Watch = () => {
     };
   }, [videoData, isVideoReady]);
 
+  // ================= HANDLERS =================
+
   const handleChapterSelect = (chapterIdx) => {
     if (chapterIdx >= 0 && chapterIdx < totalChapters) {
       setCurrentChapter(chapterIdx);
+      setShowAllChapters(false); // optional: reset view when pindah episode
       navigate(`/watch/${bookId}/${chapterIdx}`);
     }
   };
@@ -235,6 +242,7 @@ const Watch = () => {
 
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
+    fetchVideoData(); // ⬅️ benar-benar re-fetch video
   };
 
   const handleNextChapter = () => {
@@ -454,9 +462,11 @@ const Watch = () => {
       );
     }
 
+    const maxToShow = showAllChapters ? chapters.length : 48;
+
     return (
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
-        {chapters.slice(0, 48).map((chapter, index) => {
+        {chapters.slice(0, maxToShow).map((chapter, index) => {
           const isCurrent = currentChapter === chapter.chapterIndex;
           const isWatched = chapter.chapterIndex < currentChapter;
           const isLocked = chapter.isLocked;
@@ -627,7 +637,7 @@ const Watch = () => {
                 )}
               </div>
 
-              <p className="mb-4 text-gray-300">
+              <p className="mb-4 text-justify text-gray-300">
                 {dramaInfo?.description ||
                   videoData?.description ||
                   "Tidak ada deskripsi tersedia"}
@@ -682,36 +692,35 @@ const Watch = () => {
             <button
               onClick={handlePrevChapter}
               disabled={currentChapter === 0}
-              className={`px-6 py-3 rounded-lg flex items-center gap-2 transition-all ${
+              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 currentChapter === 0
                   ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                   : "bg-gray-700 hover:bg-gray-600 hover:scale-105"
-              }`}
+              } 
+  sm:px-6 sm:py-3 sm:text-lg`}
             >
-              ⏮️ Episode Sebelumnya
+              <span className="sm:hidden">⏮️</span>
+              <span className="hidden sm:inline">Episode Sebelumnya</span>
             </button>
 
             <div className="text-center">
               <div className="text-lg font-bold">
                 Episode {currentChapter + 1}
               </div>
-              <div className="text-sm text-gray-400">
-                {videoData?.duration
-                  ? formatDuration(videoData.duration)
-                  : "--:--"}
-              </div>
             </div>
 
             <button
               onClick={handleNextChapter}
               disabled={currentChapter >= totalChapters - 1}
-              className={`px-6 py-3 rounded-lg flex items-center gap-2 transition-all ${
+              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 currentChapter >= totalChapters - 1
                   ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                   : "bg-red-600 hover:bg-red-700 hover:scale-105"
-              }`}
+              }
+  sm:px-6 sm:py-3 sm:text-lg`}
             >
-              Episode Selanjutnya ⏭️
+              <span className="sm:hidden">⏭️</span>
+              <span className="hidden sm:inline">Episode Selanjutnya</span>
             </button>
           </div>
         </div>
@@ -728,9 +737,12 @@ const Watch = () => {
           {renderChaptersGrid()}
 
           {/* Show More Button if many chapters */}
-          {chapters.length > 48 && (
+          {!showAllChapters && chapters.length > 48 && (
             <div className="mt-8 text-center">
-              <button className="px-6 py-3 transition-colors bg-gray-700 rounded-lg hover:bg-gray-600">
+              <button
+                onClick={() => setShowAllChapters(true)}
+                className="px-6 py-3 transition-all bg-gray-700 rounded-lg hover:bg-gray-600 hover:scale-105"
+              >
                 Tampilkan Lebih Banyak Episode (+{chapters.length - 48})
               </button>
             </div>
